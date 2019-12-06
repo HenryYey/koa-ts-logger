@@ -13,8 +13,8 @@ interface IFileName {
 }
 
 interface IConfig {
-  path?: string;
-  filename?: IFileName;
+  filePath: string;
+  filename: IFileName;
   file?: string; // 配置文件
 }
 
@@ -28,15 +28,18 @@ export class Logger {
   infoLogger: any;
 
   constructor(config?: IConfig) {
-    let dir = "./logs";
-    if(config && config.path)
-      dir = path.parse(config.path).dir;
-    this.logsDir =  dir;
-    if (!fs.existsSync(this.logsDir)) {
-      fs.mkdirSync(this.logsDir);
+    const defaultConfig = {
+      filePath: "./logs",
+      filename: {
+        default: "default-log",
+        debug: "debug-log",
+        info: "info-log",
+        warn: "warn-log",
+        error: "error-log"
+      }
     }
     // default config
-    this.setLogger(config);
+    this.setLogger(config || defaultConfig);
     this.logger = getLogger("dateFile"); // common log
     this.debugLogger = getLogger("debug"); // debug log
     this.infoLogger = getLogger("info"); // info log
@@ -45,42 +48,51 @@ export class Logger {
     this.consoleLogger = getLogger("console"); // console log
   }
   // default six loggers
-  public setLogger(options?: IConfig) {
-    const { filename } = options;
-    const { default, info, debug, warn, error } = filename;
+  public setLogger(options: IConfig) {
+
+    const { filename, filePath } = options;
+    if(filePath) {
+      this.logsDir = path.parse(filePath).dir;
+    } else {
+      this.logsDir = "./logs"
+    }
+    if (!fs.existsSync(this.logsDir)) {
+      fs.mkdirSync(this.logsDir);
+    }
+
     const data: any = {
       appenders: {
         console: { type: "console" },
         dateFile: { 
           type: "dateFile", 
-          filename: default || "log", 
+          filename: filePath + "/" + filename.default, 
           pattern: "-yyyy-MM-dd" 
         },
         info: { 
           type: "logLevelFilter",
           level: "info",
-          filename: info || "info-log", 
+          filename: filePath + "/" + filename.info,
           pattern: "-yyyy-MM-dd",
           appender: "info"
         },        
         debug: { 
           type: "logLevelFilter",
           level: "debug",
-          filename: debug || "debug-log", 
+          filename: filePath + "/" + filename.debug,
           pattern: "-yyyy-MM-dd",
           appender: "debug"
         },
         error: { 
           type: "logLevelFilter",
           level: "error",
-          filename: error || "error-log", 
+          filename: filePath + "/" + filename.error,
           pattern: "-yyyy-MM-dd",
           appender: "error"
         },
         warn: { 
           type: "logLevelFilter",
           level: "warn",
-          filename: warn || "warn-log", 
+          filename: filename.warn, 
           pattern: "-yyyy-MM-dd",
           appender: "warn"
         }
@@ -101,7 +113,7 @@ export class Logger {
    * @param next 
    * @param type 
    */
-  public async httpLoggerMiddleware (ctx: Context, next: () => Promise<void>) {
+  public httpLoggerMiddleware = async (ctx: Context, next: () => Promise<void>) => {
     const start: any = new Date();
     await next();
     const end: any = new Date();
@@ -121,9 +133,9 @@ export class Logger {
    * @param next 
    * @param type 
    */
-  public async getLogger (ctx: Context, next: () => Promise<void>) {
+  public getLogger =  async  (ctx: Context, next: () => Promise<void>) => {
     ctx.log.error = this.errorLogger || undefined;
-    ctx.log = this.logger || undefined;
+    ctx.logger = this.logger || undefined;
     ctx.log.console = this.consoleLogger || undefined;
     ctx.console = this.consoleLogger || undefined;
     ctx.log.warn = this.warnLogger || undefined;
