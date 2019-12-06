@@ -2,7 +2,7 @@
   "name": "koa-ts-logger",
   "version": "1.0.0",
   "description": "a logger middleware for koa; using typescript ; npm",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,9 +16,12 @@
     "url": "https://github.com/HenryYey/koa-ts-logger/issues"
   },
   "homepage": "https://github.com/HenryYey/koa-ts-logger#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@types/koa": "^2.11.0",
     "@types/node": "^12.12.14",
     "fs": "0.0.1-security",
+    "koa": "^2.11.0",
     "log4js": "^6.1.0",
     "path": "^0.12.7"
   }
