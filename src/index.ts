@@ -27,8 +27,11 @@ export class Logger {
   warnLogger: any;
   infoLogger: any;
 
-  constructor(config: IConfig) {
-    this.logsDir = path.parse(config.path).dir || "./logs"
+  constructor(config?: IConfig) {
+    let dir = "./logs";
+    if(config && config.path)
+      dir = path.parse(config.path).dir;
+    this.logsDir =  dir;
     if (!fs.existsSync(this.logsDir)) {
       fs.mkdirSync(this.logsDir);
     }
@@ -43,39 +46,41 @@ export class Logger {
   }
   // default six loggers
   public setLogger(options?: IConfig) {
+    const { filename } = options;
+    const { default, info, debug, warn, error } = filename;
     const data: any = {
       appenders: {
         console: { type: "console" },
         dateFile: { 
           type: "dateFile", 
-          filename: options.filename.default || "log", 
+          filename: default || "log", 
           pattern: "-yyyy-MM-dd" 
         },
         info: { 
           type: "logLevelFilter",
           level: "info",
-          filename: options.filename.info || "info-log", 
+          filename: info || "info-log", 
           pattern: "-yyyy-MM-dd",
           appender: "info"
         },        
         debug: { 
           type: "logLevelFilter",
           level: "debug",
-          filename: options.filename.debug || "debug-log", 
+          filename: debug || "debug-log", 
           pattern: "-yyyy-MM-dd",
           appender: "debug"
         },
         error: { 
           type: "logLevelFilter",
           level: "error",
-          filename: options.filename.error || "error-log", 
+          filename: error || "error-log", 
           pattern: "-yyyy-MM-dd",
           appender: "error"
         },
         warn: { 
           type: "logLevelFilter",
           level: "warn",
-          filename: options.filename.warn || "warn-log", 
+          filename: warn || "warn-log", 
           pattern: "-yyyy-MM-dd",
           appender: "warn"
         }
