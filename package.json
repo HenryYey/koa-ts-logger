@@ -1,17 +1,17 @@
 {
   "name": "koa-ts-logger",
   "version": "1.0.0",
+  "author": "hengye <103596420@qq.com>",
   "description": "a logger middleware for koa; using typescript ; npm",
   "main": "index.ts",
   "scripts": {
-    "test": "mocha -r espower-typescript/guess test/*.test.ts && npm run proxy",
-    "proxy": "set http_proxy = http://localhost:12639 set https_proxy= http://localhost:12639"
+    "test": "cross-env NODE_ENV=test mocha -r espower-typescript/guess test/*.spec.ts",
+    "lint": "eslint \"src/index.ts\" \"test/**/*\""
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HenryYey/koa-ts-logger.git"
   },
-  "author": "hengye",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/HenryYey/koa-ts-logger/issues"
@@ -24,7 +24,11 @@
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.14",
     "@types/supertest": "^2.0.8",
+    "@typescript-eslint/eslint-plugin": "^2.11.0",
+    "@typescript-eslint/parser": "^2.11.0",
     "assert": "^2.0.0",
+    "cross-env": "^6.0.3",
+    "eslint": "^6.7.2",
     "espower-typescript": "^9.0.2",
     "fs": "0.0.1-security",
     "koa": "^2.11.0",
