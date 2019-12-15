@@ -37,13 +37,13 @@ describe('koa-ts-logger', () => {
 
     app.use(async (ctx: Koa.Context, next: () => Promise<void>) => {
       try {
-      ctx.log.info('Got info');
-      ctx.log.debug('Got debug');
-      ctx.log.warn('Got warn');
-      ctx.log.console('Got console');
-      ctx.log.error('Got error');
-      await next();
-      assert.ok(true);
+        ctx.log.info('Got info');
+        ctx.log.debug('Got debug');
+        ctx.log.warn('Got warn');
+        ctx.log.console('Got console');
+        ctx.log.error('Got error');
+        await next();
+        assert.ok(true);
       } catch (err) {
         console.error(err);
         assert.ok(false);
