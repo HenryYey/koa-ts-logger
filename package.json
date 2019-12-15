@@ -1,12 +1,15 @@
 {
   "name": "koa-ts-logger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "hengye <103596420@qq.com>",
   "description": "a logger middleware for koa; using typescript ; npm",
-  "main": "index.ts",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha -r espower-typescript/guess test/*.spec.ts",
-    "lint": "eslint \"src/index.ts\" \"test/**/*\""
+    "lint": "eslint \"lib/index.ts\" \"test/**/*\"",
+    "build": "npm run lint && npm run build:lib",
+    "build:lib": "tsc -p tsconfig.prod.json"
   },
   "repository": {
     "type": "git",
