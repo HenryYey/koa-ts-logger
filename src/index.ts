@@ -1,4 +1,3 @@
-
 import * as fs from "fs";
 import * as path from "path";
 import { configure, getLogger } from "log4js";
@@ -42,6 +41,7 @@ export class Logger {
     this.setLogger(config || defaultConfig);
     this.logger = getLogger("dateFile"); // common log
     this.debugLogger = getLogger("debug"); // debug log
+    console.log("befor", this.infoLogger);
     this.infoLogger = getLogger("info"); // info log
     this.warnLogger = getLogger("warn"); // warn log
     this.errorLogger = getLogger("error"); // error log
@@ -49,12 +49,11 @@ export class Logger {
   }
   // default six loggers
   public setLogger(options: IConfig) {
-
     const { filename, filePath } = options;
-    if(filePath) {
-      this.logsDir = path.parse(filePath).dir;
+    if (filePath) {
+      this.logsDir = path.resolve(__dirname, filePath);
     } else {
-      this.logsDir = "./logs"
+      this.logsDir = path.resolve(__dirname, "./logs");
     }
     if (!fs.existsSync(this.logsDir)) {
       fs.mkdirSync(this.logsDir);
@@ -63,44 +62,52 @@ export class Logger {
     const data: any = {
       appenders: {
         console: { type: "console" },
-        dateFile: { 
-          type: "dateFile", 
-          filename: filePath + "/" + filename.default, 
-          pattern: "-yyyy-MM-dd" 
+        dateFile: {
+          type: "dateFile",
+          filename: this.logsDir + "/" + filename.default,
+          pattern: "-yyyy-MM-dd"
         },
-        info: { 
-          type: "logLevelFilter",
-          level: "info",
-          filename: filePath + "/" + filename.info,
+        info: {
+          type: "dateFile",
+          filename: this.logsDir + "/" + filename.info,
           pattern: "-yyyy-MM-dd",
-          appender: "info"
-        },        
-        debug: { 
-          type: "logLevelFilter",
-          level: "debug",
-          filename: filePath + "/" + filename.debug,
-          pattern: "-yyyy-MM-dd",
-          appender: "debug"
         },
-        error: { 
-          type: "logLevelFilter",
-          level: "error",
-          filename: filePath + "/" + filename.error,
+        debug: {
+          type: "dateFile",
+          filename: this.logsDir + "/" + filename.debug,
           pattern: "-yyyy-MM-dd",
-          appender: "error"
         },
-        warn: { 
-          type: "logLevelFilter",
-          level: "warn",
-          filename: filename.warn, 
+        error: {
+          type: "dateFile",
+          filename: this.logsDir + "/" + filename.error,
           pattern: "-yyyy-MM-dd",
-          appender: "warn"
+        },
+        warn: {
+          type: "dateFile",
+          filename: this.logsDir + "/" + filename.warn,
+          pattern: "-yyyy-MM-dd",
         }
       },
       categories: {
         default: {
-          appenders: ["console", "dateFile", "error", "info", "debug", "warn"],
+          appenders: ["console", "dateFile"],
           level: "info"
+        },
+        error: {
+          appenders: ["error"],
+          level: "error"
+        },
+        warn: {
+          appenders: ["warn"],
+          level: "warn"
+        },
+        info: {
+          appenders: ["info"],
+          level: "info"
+        },
+        debug: {
+          appenders: ["debug"],
+          level: "debug"
         }
       }
     };
@@ -113,15 +120,15 @@ export class Logger {
    * @param next 
    * @param type 
    */
-  public httpLoggerMiddleware = async (ctx: Context, next: () => Promise<void>) => {
+  public httpLogger = async (ctx: Context, next: () => Promise<void>) => {
     const start: any = new Date();
     await next();
     const end: any = new Date();
     const ms: any = end - start;
-  
+
     const remoteAddress = ctx.headers['x-forwarded-for'] || ctx.ip || ctx.ips ||
       (ctx.socket && ctx.socket.remoteAddress);
-  
+
     const logText = `${ctx.method} ${ctx.status} ${ctx.url} - ${remoteAddress} - ${ms}ms`;
 
     this.logger.info(logText);
@@ -133,14 +140,14 @@ export class Logger {
    * @param next 
    * @param type 
    */
-  public getLogger =  async  (ctx: Context, next: () => Promise<void>) => {
-    ctx.log.error = this.errorLogger || undefined;
-    ctx.logger = this.logger || undefined;
-    ctx.log.console = this.consoleLogger || undefined;
-    ctx.console = this.consoleLogger || undefined;
-    ctx.log.warn = this.warnLogger || undefined;
-    ctx.log.debug = this.debugLogger || undefined;
-    ctx.log.info = this.infoLogger || undefined;
+  public getLoggers = async (ctx: Context, next: () => Promise<void>) => {
+    ctx.log = {};
+    ctx.log.date = (text) => this.logger.info(text);
+    ctx.log.console = (text) => this.consoleLogger.info(text);
+    ctx.log.error = (text) => this.errorLogger.error(text);
+    ctx.log.warn = (text) => this.warnLogger.warn(text);
+    ctx.log.debug = (text) => this.debugLogger.debug(text);
+    ctx.log.info = (text) => this.infoLogger.info(text);
     await next();
   }
 }
