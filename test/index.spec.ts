@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { Logger } from '../src/index';
+import { Logger } from '../lib/index';
 import * as Koa from "koa";
 import * as request from 'supertest'
 

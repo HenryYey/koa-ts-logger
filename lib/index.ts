@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { configure, getLogger } from "log4js";
-import { Context } from "koa";
+import * as Koa from "koa";
 
 interface IFileName {
   default?: string;
@@ -41,7 +41,6 @@ export class Logger {
     this.setLogger(config || defaultConfig);
     this.logger = getLogger("dateFile"); // common log
     this.debugLogger = getLogger("debug"); // debug log
-    console.log("befor", this.infoLogger);
     this.infoLogger = getLogger("info"); // info log
     this.warnLogger = getLogger("warn"); // warn log
     this.errorLogger = getLogger("error"); // error log
@@ -120,7 +119,7 @@ export class Logger {
    * @param next 
    * @param type 
    */
-  public httpLogger = async (ctx: Context, next: () => Promise<void>) => {
+  public httpLogger = async (ctx: Koa.Context, next: () => Promise<void>) => {
     const start: any = new Date();
     await next();
     const end: any = new Date();
@@ -140,7 +139,7 @@ export class Logger {
    * @param next 
    * @param type 
    */
-  public getLoggers = async (ctx: Context, next: () => Promise<void>) => {
+  public getLoggers = async (ctx: Koa.Context, next: () => Promise<void>) => {
     ctx.log = {};
     ctx.log.date = (text) => this.logger.info(text);
     ctx.log.console = (text) => this.consoleLogger.info(text);
